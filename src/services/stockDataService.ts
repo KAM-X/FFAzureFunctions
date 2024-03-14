@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import axios from "axios";
 import { StockDataMapper } from "../mappers/stockDataMapper";
 import { IStockDataRepository } from "../repositories/stockRepository";
+import { StockData } from '../models/stockData';
 
 export class StockDataService {
   private repository: IStockDataRepository;
@@ -10,6 +11,7 @@ export class StockDataService {
   constructor(stockDataRepo: IStockDataRepository) {
     this.repository = stockDataRepo;
   }
+
 
   async fetchDataAndStore(): Promise<void> {
     try {
@@ -26,14 +28,28 @@ export class StockDataService {
     }
   }
 
-  async giveDataForStock(stockReqDTO: any): Promise<any> {
-    try {
-      // get data from repo
-      // return await this.repository.getDataForStock(stockReqDTO);
-    }
-    catch (error) {
-      console.error("Error getting stock data:", error);
-      // Handle error appropriately
-    }
+  // async giveDataForStock(stockReqDTO: any): Promise<any> {
+  //   try {
+  //     // get data from repo
+  //     // return await this.repository.getDataForStock(stockReqDTO);
+  //   }
+  //   catch (error) {
+  //     console.error("Error getting stock data:", error);
+  //     // Handle error appropriately
+  //   }
+  // }
+  // Inside stockDataService
+  async getStockData(symbolName: string, startDatetime: string, endDatetime: string): Promise<StockData> {
+    // Implement logic to retrieve and process stock data
+
+    return {
+      id: 'kok',
+      timestamp: 12,
+      volume: 12,
+      high: 12,
+      low: 12,
+      close: 12,
+      open: 12
+    };
   }
 }
