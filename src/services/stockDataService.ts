@@ -16,7 +16,11 @@ export class StockDataService {
   async fetchDataAndStore(): Promise<void> {
     try {
       const response = await axios.get("https://api.thirdparty.com/stock/data");
-      const stockData = StockDataMapper.toStockData(response.data, "AMZN", uuidv4());
+      const responseData = response.data;
+      const stockSymbol = "AMZN";
+      const uniqueId: string = uuidv4();
+      const stockData = StockDataMapper.toStockData(responseData, stockSymbol, uniqueId);
+
       await this.repository.save(stockData);
     } catch (error) {
       console.error("Error fetching and storing stock data:", error);

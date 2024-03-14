@@ -1,6 +1,15 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { StockDataService } from "../services/stockDataService";
-import { IStockDataRepository, StockDataRepository } from "../repositories/stockRepository";
+
+//import { StockDataService } from "../services/stockDataService";
+//import { IStockDataRepository, StockDataRepository } from "../repositories/stockRepository";
+
+//import { CosmosClient } from "@azure/cosmos";
+
+// const endpoint = "<your-cosmos-db-endpoint>"; // move to local.settings.json
+// const key = "<your-cosmos-db-key>"; // move to local.settings.json
+// const client = new CosmosClient({ endpoint, key }); // initialize here
+// const database = client.database("YourDatabase"); // initialize here
+// const container = database.container("StockData"); // initialize here and pass to repo when initializing
 
 export async function FFRetrievalFunction(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     /* Replace later with actual implementation of StockDataRepository when ready */
