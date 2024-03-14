@@ -2,6 +2,13 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { TestMessage } from "../models/testMessage";
 import { MsgService } from "../services/msgService";
 import { FakeMessageRepository } from "../repositories/exampleFakeRepo";
+import { CosmosClient } from "@azure/cosmos";
+
+// const endpoint = "<your-cosmos-db-endpoint>"; // move to local.settings.json
+// const key = "<your-cosmos-db-key>"; // move to local.settings.json
+// const client = new CosmosClient({ endpoint, key }); // initialize here
+// const database = client.database("YourDatabase"); // initialize here
+// const container = database.container("StockData"); // initialize here and pass to repo when initializing
 
 export async function FFRetrievalFunction(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);

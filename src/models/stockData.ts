@@ -2,6 +2,7 @@
 
 export interface StockData {
   id: string;
+  symbol: string;
   timestamp: number;
   volume: number;
   high: number;
