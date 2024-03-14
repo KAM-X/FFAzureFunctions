@@ -1,10 +1,13 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { StockDataService } from "../services/stockDataService";
+import { IStockDataRepository, StockDataRepository } from "../repositories/stockRepository";
 
 export async function FFRetrievalFunction(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    // const stockDataService = new StockDataService(new StockRepository(), new StockDataMapper());
+    /* Replace later with actual implementation of StockDataRepository when ready */
+    // const stockDataService = new StockDataService(new StockDataRepository());
+    const stockDataService = new StockDataService({ save: (_) => null } as IStockDataRepository);
 
     if (request.method === 'GET') {
-        // Extract symbolName, startDatetime, and endDatetime from the URL
         const symbolName = request.params['symbolName'];
         const startDatetime = request.query.get('startDatetime');
         const endDatetime = request.query.get('endDatetime');
@@ -14,9 +17,10 @@ export async function FFRetrievalFunction(request: HttpRequest, context: Invocat
         }
 
         try {
-            // const stockData = await stockDataService.getStockData(symbolName, startDatetime, endDatetime);
-            const stockData = symbolName + " " + startDatetime + " " + endDatetime;
-            return { status: 200, body: stockData };
+            const stockData = await stockDataService.getStockData(symbolName, startDatetime, endDatetime);
+            const responseBody = JSON.stringify(stockData);
+
+            return { status: 200, body: responseBody };
         } catch (error) {
             return { status: 500, body: `Error retrieving stock data: ${error.message}` };
         }
