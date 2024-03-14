@@ -1,15 +1,18 @@
 // Example of mapper, modify/extend if needed
 
 import { StockData } from "../models/stockData";
-import { StockDataDTO } from "../models/stockDataDTO";
+import { StockDataAPI_DTO } from "../models/stockDataAPI_DTO";
 
 export class StockDataMapper {
-  public static toStockData(apiResponse: StockDataDTO | any): StockData {
-      return {
-          id: apiResponse.id || new Date().toISOString(), // Example, adjust based on actual API response
-          symbol: apiResponse.symbol,
-          price: apiResponse.price,
-          timestamp: new Date(apiResponse.timestamp),
-      };
+  public static toStockData(apiResponse: StockDataAPI_DTO, symbol: string, id: number): StockData {
+    return {
+      id: id.toString() + "-" + symbol,
+      timestamp: apiResponse.t,
+      volume: apiResponse.v,
+      high: apiResponse.h,
+      low: apiResponse.l,
+      close: apiResponse.c,
+      open: apiResponse.o,
+    };
   }
 }
