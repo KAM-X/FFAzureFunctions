@@ -5,11 +5,13 @@ import { IStockDataRepository, StockDataRepository } from "../repositories/stock
 
 import { CosmosClient } from "@azure/cosmos";
 
-const endpoint = "<your-cosmos-db-endpoint>"; // move to local.settings.json
-const key = "<your-cosmos-db-key>"; // move to local.settings.json
-const client = new CosmosClient({ endpoint, key }); // initialize here
-const database = client.database("YourDatabase"); // initialize here
-const container = database.container("StockData"); // initialize here and pass to repo when initializing
+const endpoint = process.env.COSMOS_DB_ENDPOINT;
+const key = process.env.COSMOS_DB_KEY;
+const client = new CosmosClient({ endpoint, key });
+const databaseName = process.env.DATABASE_NAME;
+const containerName = process.env.CONTAINER_NAME;;
+const database = client.database(databaseName);
+const container = database.container(containerName);
 const stockRepository = new StockDataRepository(container);
 
 
