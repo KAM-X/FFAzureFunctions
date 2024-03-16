@@ -39,17 +39,8 @@ export class StockDataService {
   //   }
   // }
   // Inside stockDataService
-  async getStockData(symbolName: string, startDatetime: string, endDatetime: string): Promise<StockData> {
-    // Implement logic to retrieve and process stock data
-
-    return {
-      id: 'kok',
-      timestamp: 12,
-      volume: 12,
-      high: 12,
-      low: 12,
-      close: 12,
-      open: 12
-    };
+  async getStockData(symbolName: string, startDatetime: string, endDatetime: string): Promise<StockData[]> {
+    return this.repository.findBySymbolForPeriod(symbolName, new Date(startDatetime), new Date(endDatetime));
   }
+
 }
