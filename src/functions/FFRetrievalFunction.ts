@@ -10,9 +10,10 @@ const key = "<your-cosmos-db-key>"; // move to local.settings.json
 const client = new CosmosClient({ endpoint, key }); // initialize here
 const database = client.database("YourDatabase"); // initialize here
 const container = database.container("StockData"); // initialize here and pass to repo when initializing
+const stockRepository = new StockDataRepository(container);
+
 
 export async function FFRetrievalFunction(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    var stockRepository = new StockDataRepository(container);
     const stockDataService = new StockDataService(stockRepository);
 
 
