@@ -19,7 +19,7 @@ export class StockDataService {
       const apiKey = process.env.THIRD_PARTY_API_KEY;
       const response = await axios.get(`https://api.finazon.io/latest/time_series?dataset=us_stocks_essential&ticker=${symbol}&interval=1m&order=desc`, {
         headers: {
-          'Authorization': `apiKey ${apiKey}`
+          'Authorization': `apikey ${apiKey}`
         }
       });
 
@@ -29,9 +29,35 @@ export class StockDataService {
 
       await this.repository.save(stockData);
     } catch (error) {
-
-      if (error.response) {
-        console.error("Error fetching stock data for symbol:", symbol, error);
+      if (axios.isAxiosError(error) && error.response) {
+        const statusCode = error.response.status;
+        switch (statusCode) {
+          case 400:
+            console.error(`Error 400: Invalid request parameter, date range, market, or ticker for symbol: ${symbol}. Error message: `, error.message);
+            break;
+          case 401:
+            console.error(`Error 401: Unauthorized access or invalid API key for symbol: ${symbol}. Error message: `, error.message);
+            break;
+          case 404:
+            console.error(`Error 404: Endpoint not found for symbol: ${symbol}. Error message: `, error.message);
+            break;
+          case 429:
+            console.error(`Error 429: API rate limit exceeded for symbol: ${symbol}. Please wait and try again later.. Error message: `, error.message);
+            break;
+          case 408:
+            console.error(`Error 408: Request timeout for symbol: ${symbol}. Please try again later.. Error message: `, error.message);
+            break;
+          case 503:
+            console.error(`Error 503: Data unavailable for symbol: ${symbol}. Please try again later.. Error message: `, error.message);
+            break;
+          case 500:
+            console.error(`Error 500: Internal server error for symbol: ${symbol}. Please try again later.. Error message: `, error.message);
+            break;
+          default:
+            console.error(`Unexpected error fetching stock data for symbol: ${symbol}. Error message: `, error.message);
+        }
+      } else {
+        console.error("Error fetching stock data. The error might not be related to a network or HTTP issue.", error);
       }
     }
   }
