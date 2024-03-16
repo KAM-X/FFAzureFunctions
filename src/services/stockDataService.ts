@@ -7,24 +7,37 @@ import { StockData } from '../models/stockData';
 
 export class StockDataService {
   private repository: IStockDataRepository;
+  private stockSymbolArray: string[];
 
   constructor(stockDataRepo: IStockDataRepository) {
     this.repository = stockDataRepo;
+    this.stockSymbolArray = ["AMZN", "AAPL", "MSFT"];
   }
 
-
-  async fetchDataAndStore(): Promise<void> {
+  async fetchStockData(symbol: string): Promise<void> {
     try {
-      const response = await axios.get("https://api.thirdparty.com/stock/data");
+      // Adjusted to a hypothetical endpoint that takes a symbol
+      const baseUrl = "https://api.finazon.io/latest/time_series?dataset=sip_non_pro&ticker=" + symbol + "&interval=1d";
+      const urlAPIKey = "?apikey=" + process.env.API_KEY;
+      const fullUrl = baseUrl + urlAPIKey;
+
+      const response = await axios.get(fullUrl);
       const responseData = response.data;
-      const stockSymbol = "AMZN";
       const uniqueId: string = uuidv4();
-      const stockData = StockDataMapper.toStockData(responseData, stockSymbol, uniqueId);
+      const stockData = StockDataMapper.toStockData(responseData, symbol, uniqueId);
 
       await this.repository.save(stockData);
     } catch (error) {
-      console.error("Error fetching and storing stock data:", error);
-      // Handle error appropriately
+
+      if (error.response) {
+        console.error("Error fetching stock data for symbol:", symbol, error);
+      }
+    }
+  }
+
+  async fetchDataAndStore(): Promise<void> {
+    for (const symbol of this.stockSymbolArray) {
+      await this.fetchStockData(symbol);
     }
   }
 
