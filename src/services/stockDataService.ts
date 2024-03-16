@@ -28,28 +28,10 @@ export class StockDataService {
     }
   }
 
-  // async giveDataForStock(stockReqDTO: any): Promise<any> {
-  //   try {
-  //     // get data from repo
-  //     // return await this.repository.getDataForStock(stockReqDTO);
-  //   }
-  //   catch (error) {
-  //     console.error("Error getting stock data:", error);
-  //     // Handle error appropriately
-  //   }
-  // }
-  // Inside stockDataService
-  async getStockData(symbolName: string, startDatetime: string, endDatetime: string): Promise<StockData> {
-    // Implement logic to retrieve and process stock data
+  async getStockData(symbolName: string, startDatetimeStr: string, endDatetimeStr: string): Promise<StockData[]> {
+    var startDatetime = new Date(startDatetimeStr);
+    var endDatetime = new Date(endDatetimeStr);
 
-    return {
-      id: 'kok',
-      timestamp: 12,
-      volume: 12,
-      high: 12,
-      low: 12,
-      close: 12,
-      open: 12
-    };
+    return this.repository.findBySymbolForPeriod(symbolName, startDatetime, endDatetime);
   }
 }
