@@ -12,10 +12,9 @@ const database = client.database("YourDatabase"); // initialize here
 const container = database.container("StockData"); // initialize here and pass to repo when initializing
 
 export async function FFRetrievalFunction(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    /* Replace later with actual implementation of StockDataRepository when ready */
-    const stockDataService = new StockDataService(new StockDataRepository(container));
+    var stockRepository = new StockDataRepository(container);
+    const stockDataService = new StockDataService(stockRepository);
 
-    // const stockDataService = new StockDataService({ save: (_) => null } as IStockDataRepository);
 
     if (request.method === 'GET') {
         const symbolName = request.params['symbolName'];
