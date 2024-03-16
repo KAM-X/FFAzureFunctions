@@ -17,7 +17,7 @@ export class StockDataService {
   async fetchStockData(symbol: string): Promise<void> {
     try {
       // Adjusted to a hypothetical endpoint that takes a symbol
-      const baseUrl = "https://api.finazon.io/latest/time_series?dataset=sip_non_pro&ticker=" + symbol + "&interval=1d";
+      const baseUrl = "https://api.finazon.io/latest/time_series?dataset=sip_non_pro&ticker=" + symbol + "&interval=1m";
       const urlAPIKey = "?apikey=" + process.env.API_KEY;
       const fullUrl = baseUrl + urlAPIKey;
 
