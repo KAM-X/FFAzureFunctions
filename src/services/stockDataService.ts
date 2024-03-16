@@ -16,15 +16,16 @@ export class StockDataService {
 
   async fetchStockData(symbol: string): Promise<void> {
     try {
-      // Adjusted to a hypothetical endpoint that takes a symbol
-      const baseUrl = "https://api.finazon.io/latest/time_series?dataset=sip_non_pro&ticker=" + symbol + "&interval=1m";
-      const urlAPIKey = "?apikey=" + process.env.API_KEY;
-      const fullUrl = baseUrl + urlAPIKey;
+      const apiKey = process.env.THIRD_PARTY_API_KEY;
+      const response = await axios.get(`https://api.finazon.io/latest/time_series?dataset=us_stocks_essential&ticker=${symbol}&interval=1m&order=desc`, {
+        headers: {
+          'Authorization': `apiKey ${apiKey}`
+        }
+      });
 
-      const response = await axios.get(fullUrl);
       const responseData = response.data;
       const uniqueId: string = uuidv4();
-      const stockData = StockDataMapper.toStockData(responseData, symbol, uniqueId);
+      const stockData = StockDataMapper.toStockData(responseData[0], symbol, uniqueId);
 
       await this.repository.save(stockData);
     } catch (error) {
