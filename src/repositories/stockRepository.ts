@@ -15,6 +15,10 @@ export interface IStockDataRepository {
 
 export class StockDataRepository implements IStockDataRepository {
     public async save(stockData: StockData): Promise<void> {
-        await container.items.create(stockData);
+        try {
+            await container.items.create(stockData);
+        } catch (error) {
+            console.error("Error saving stock data:", error);
+        }
     }
 }
