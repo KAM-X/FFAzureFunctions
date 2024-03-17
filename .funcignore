@@ -1,5 +1,6 @@
 *.js.map
 *.ts
+*.mjs
 .git*
 .vscode
 __azurite_db*__.json

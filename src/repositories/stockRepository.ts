@@ -43,7 +43,7 @@ export class StockDataRepository implements IStockDataRepository {
     
     public async findBySymbolForPeriod(symbol: string, startDate: Date, endDate: Date): Promise<StockData[]> {
         const querySpec = {
-            query: "SELECT * FROM c WHERE c.timestamp >= @startTimestamp AND c.timestamp <= @endTimestamp AND c.symbol = @symbol",
+            query: "SELECT * FROM c WHERE c.timestamp >= @startTimestamp AND c.timestamp <= @endTimestamp AND c.symbol = @symbol ORDER BY c.timestamp DESC",
             parameters: [
                 {
                     name: "@startTimestamp",

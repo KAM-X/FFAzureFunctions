@@ -1,9 +1,7 @@
-// Example Stock Data model, if needed modify, perhaps for cosmos db storage (might need to be mapped do different object)
-
 export interface StockData {
   id: string;
   symbol: string;
-  timestamp: number;
+  timestamp: Date;
   volume: number;
   high: number;
   low: number;

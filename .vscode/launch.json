@@ -10,3 +10,5 @@
     }
   ]
 }
+// To launch a single function
+// func start --functions FFRetrievalFunction
