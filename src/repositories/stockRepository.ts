@@ -18,7 +18,13 @@ export class StockDataRepository implements IStockDataRepository {
     }
 
     public async save(stockData: StockData): Promise<void> {
-        await this.container.items.create(stockData);
+        try {
+            const stockDataPersistence = StockDataMapper.stockDataToPersistence(stockData);
+
+            await this.container.items.upsert(stockDataPersistence);
+        } catch (error) {
+            console.error("Error saving stock data:", error);
+        }
     }
 
     public async getRealTimeData(symbol: string): Promise<StockData> {
