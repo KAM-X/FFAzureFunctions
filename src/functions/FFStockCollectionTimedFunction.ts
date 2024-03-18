@@ -26,7 +26,7 @@ export async function FFStockCollectionTimedFunction(myTimer: Timer, context: In
 }
 
 app.timer('FFStockCollectionTimedFunction', {
-    schedule: '0 */1 * * * *',
+    schedule: '15 * * * * 1-5', // every minute at 15 seconds past the minute
     extraOutputs: [wpsAction],
     handler: FFStockCollectionTimedFunction
 });
