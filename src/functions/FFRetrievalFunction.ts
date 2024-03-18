@@ -1,34 +1,36 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { TestMessage } from "../models/testMessage";
-import { MsgService } from "../services/msgService";
-import { FakeMessageRepository } from "../repositories/exampleFakeRepo";
+import { StockDataService } from "../services/stockDataService";
+import { StockDataRepository } from "../repositories/stockRepository";
+import { container } from "../cosmosClientInstance";
 
 export async function FFRetrievalFunction(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-
-    const msgRepository = new FakeMessageRepository();
-    const msgService = new MsgService(msgRepository);
-
-    // const name = request.query.get('name') || await request.text() || 'world';
+    const stockRepository = new StockDataRepository(container);
+    const stockDataService = new StockDataService(stockRepository);
 
 
-    // const message: TestMessage = { name, message: 'Hello, ' + name + '!!!!!!!!!!!!!!!' };
+    if (request.method === 'GET') {
+        const symbolName = request.params['symbolName'];
+        const startDatetime = request.query.get('startDatetime');
+        const endDatetime = request.query.get('endDatetime');
 
-    // return { body: message.message };
+        if (!symbolName || !startDatetime || !endDatetime) {
+            return { status: 400, body: "Missing required parameters" };
+        }
 
-    // if method post 
-    if (request.method === 'POST') {
-        const message: TestMessage = { name: 'John' + Math.random().toString(), message: 'Numbaaaa!' };
-        await msgService.saveMsg(message);
+        try {
+            const stockData = await stockDataService.getStockData(symbolName, startDatetime, endDatetime);
+            const responseBody = JSON.stringify(stockData);
+
+            return { status: 200, body: responseBody };
+        } catch (error) {
+            return { status: 500, body: `Error retrieving stock data: ${error.message}` };
+        }
     }
-    
-    const messages = await msgService.getAllMsgs();
-    const responseBody = messages.map(m => `${m.name} - ${m.message}`).join('\n');
-    // return { body: messages.map(m => m.message).join('\n')};
-    return { body: responseBody + '\n\nsucky ducky = ' + messages.length };
+    return { status: 400, body: "Bad request" };
 };
 
 app.http('FFRetrievalFunction', {
+    route: 'v1/stock/{symbolName}',
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
     handler: FFRetrievalFunction
