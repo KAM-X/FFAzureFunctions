@@ -51,4 +51,24 @@ describe("FFRetrievalFunction tests", () => {
     // Assert
     expect(result).toEqual({ status: 400, body: "Missing required parameters" });
   });
+
+  it("returns 200 and stock data on successful retrieval", async () => {
+    // Arrange
+    const request = {
+      method: 'GET',
+      params: { symbolName: "TEST" },
+      query: new URLSearchParams([['startDatetime', '2020-01-01'], ['endDatetime', '2020-01-02']])
+    } as unknown as HttpRequest;
+    const context = {} as any;
+
+    const mockData = { data: "some stock data" } as any;
+    mockStockDataService.getStockData.mockResolvedValue(mockData);
+
+    // Act
+    const result = await FFRetrievalFunction(request, context);
+
+    // Assert
+    expect(result).toEqual({ status: 200, body: JSON.stringify(mockData) });
+    expect(mockStockDataService.getStockData).toHaveBeenCalledWith("TEST", "2020-01-01", "2020-01-02");
+  });
 });
