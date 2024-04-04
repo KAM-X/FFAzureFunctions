@@ -40,5 +40,15 @@ beforeEach(() => {
 });
 
 describe("FFRetrievalFunction tests", () => {
-  
+  it("returns 400 if required parameters are missing", async () => {
+    // Arrange
+    const request = { method: 'GET', params: {}, query: new URLSearchParams() } as unknown as HttpRequest;
+    const context = {} as any;
+
+    // Act
+    const result = await FFRetrievalFunction(request, context);
+
+    // Assert
+    expect(result).toEqual({ status: 400, body: "Missing required parameters" });
+  });
 });
