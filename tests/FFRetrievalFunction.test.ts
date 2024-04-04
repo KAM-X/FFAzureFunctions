@@ -71,4 +71,21 @@ describe("FFRetrievalFunction tests", () => {
     expect(result).toEqual({ status: 200, body: JSON.stringify(mockData) });
     expect(mockStockDataService.getStockData).toHaveBeenCalledWith("TEST", "2020-01-01", "2020-01-02");
   });
+
+  it("returns 500 if there is an error retrieving stock data", async () => {
+    // Arrange
+    const request = {
+      method: 'GET',
+      params: { symbolName: "TEST" },
+      query: new URLSearchParams([['startDatetime', '2020-01-01'], ['endDatetime', '2020-01-02']])
+    } as unknown as HttpRequest;
+    const context = {} as any;
+    mockStockDataService.getStockData.mockRejectedValue(new Error("Some service error text"));
+
+    // Act
+    const result = await FFRetrievalFunction(request, context);
+
+    // Assert
+    expect(result).toEqual({ status: 500, body: "Error retrieving stock data: Some service error text" });
+  });
 });
