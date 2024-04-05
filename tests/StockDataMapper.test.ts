@@ -3,9 +3,6 @@ import { StockDataAPI_DTO } from '../src/models/stockDataAPI_DTO';
 import { StockData } from '../src/models/stockData';
 import { StockDataPersistence } from '../src/persistence/stockDataPersistence';
 
-jest.mock('../src/persistence/stockDataPersistence');
-jest.mock('../src/services/stockDataService');
-
 describe('StockDataMapper', () => {
   describe('toStockData', () => {
     it('should map API response to StockData', () => {
