@@ -1,11 +1,9 @@
 import { HttpRequest, HttpRequestParams } from "@azure/functions";
 import { StockDataRepository } from "../src/repositories/stockRepository";
-import { StockDataService } from "../src/services/stockDataService";
 import {  mock, mockReset   } from 'jest-mock-extended';
 import { FFRetrievalFunction } from "../src/functions/FFRetrievalFunction";
 import { StockData } from "../src/models/stockData";
 import axios from "axios";
-import { StockDataAPI_DTO } from "../src/models/stockDataAPI_DTO";
 
 // External dependency mocks
 const mockRepository = mock<StockDataRepository>();
