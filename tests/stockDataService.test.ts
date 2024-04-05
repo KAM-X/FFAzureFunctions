@@ -102,14 +102,55 @@ describe('StockDataService', () => {
       // Arrange
       const mockData = {};
       mockAxios.get.mockResolvedValue({ data: { data: [] } });
-      
+
       // Act
       const result = await service.fetchStockData('AMZN');
 
       // Assert
       expect(result).toBeNull();
     });
+  });
 
+describe('StockDataService Error Handling', () => {
+    // Assuming `service` and `mockRepository` have been initialized in a higher scope as before
+
+    const testCases = [
+      { code: 400, message: 'Invalid request parameter' },
+      { code: 401, message: 'Unauthorized access or invalid API key' },
+      { code: 404, message: 'Endpoint not found' },
+      { code: 429, message: 'API rate limit exceeded' },
+      { code: 408, message: 'Request timeout' },
+      { code: 503, message: 'Data unavailable' },
+      { code: 500, message: 'Internal server error' },
+      { code: 501, message: 'Some server error' },
+    ];
+
+    testCases.forEach(({ code, message }) => {
+      it(`should handle ${code} error gracefully`, async () => {
+        // Arrange
+        const errorResponse = {
+          isAxiosError: true,
+          response: { status: code },
+          message,
+        };
+        mockAxios.get.mockRejectedValue(errorResponse);
+        mockAxios.isAxiosError.mockImplementation((error) => error.isAxiosError === true);
+        const fakeConsole = jest.spyOn(console, 'error').mockImplementation();
+
+        // Act & Assert
+        await expect(service.fetchStockData('AMZN')).resolves.toBeNull();
+        expect(fakeConsole).toHaveBeenCalledTimes(1);
+        fakeConsole.mockRestore();
+      });
+    });
+
+    it('should handle API errors gracefully', async () => {
+      // Arrange
+      mockAxios.get.mockRejectedValue(new Error('Network error'));
+
+      // Act & Assert
+      await expect(service.fetchStockData('AMZN')).resolves.toBeNull();
+    });
   });
 
 });
