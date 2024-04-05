@@ -111,7 +111,7 @@ describe('StockDataService', () => {
     });
   });
 
-describe('StockDataService Error Handling', () => {
+  describe('StockDataService Error Handling', () => {
     // Assuming `service` and `mockRepository` have been initialized in a higher scope as before
 
     const testCases = [
@@ -152,8 +152,8 @@ describe('StockDataService Error Handling', () => {
       await expect(service.fetchStockData('AMZN')).resolves.toBeNull();
     });
   });
-  
-describe('fetchDataAndStore', () => {
+
+  describe('fetchDataAndStore', () => {
     it('should fetch and store data for multiple symbols', async () => {
       // Arrange
       jest.spyOn(service, 'fetchStockData').mockImplementation(async (symbol) => ({
@@ -177,4 +177,27 @@ describe('fetchDataAndStore', () => {
     });
   });
 
+  describe('getStockData', () => {
+    it('should retrieve stock data for a given period', async () => {
+      // Arrange
+      const mockData: StockData[] = [{
+        id: 'anyId',
+        symbol: 'AMZN',
+        timestamp: new Date(),
+        volume: 100,
+        high: 10,
+        low: 5,
+        close: 8,
+        open: 6,
+      }];
+      mockRepository.findBySymbolForPeriod.mockResolvedValue(mockData);
+
+      // Act
+      const results = await service.getStockData('AMZN', '2021-01-01', '2021-01-02');
+
+      // Assert
+      expect(results).toEqual(mockData);
+      expect(mockRepository.findBySymbolForPeriod).toHaveBeenCalledWith('AMZN', expect.any(Date), expect.any(Date));
+    });
+  });
 });
