@@ -140,5 +140,61 @@ describe('StockDataRepository', () => {
         expect(consoleErrorSpy).toHaveBeenCalledWith("Error querying items:", error.message);
       });
   });
+
+  describe('findBySymbolForPeriod', () => {
+    beforeEach(() => {
+    jest.clearAllMocks();
+  });
+    it('should find stock data by symbol for a given period', async () => {
+      const symbol = 'TEST';
+      const startDate = new Date('2023-04-01');
+      const endDate = new Date('2023-04-03');
+      const mockResponse = {
+        resources: [{
+            id: 'mock-id',
+            symbol: 'TEST',
+            timestamp: '2023-04-03T12:00:00.000Z',
+            volume: 1000,
+            high: 10.5,
+            low: 9.8,
+            close: 10.2,
+            open: 10.0,
+        }],
+      };
+
+      containerMock.items.query = jest.fn().mockReturnValue({
+        fetchAll: jest.fn().mockResolvedValue(mockResponse),
+      });
+
+      const result = await stockDataRepository.findBySymbolForPeriod(symbol, startDate, endDate);
+
+      expect(containerMock.items.query).toHaveBeenCalled();
+      expect(result).toEqual([{
+        id: 'mock-id',
+        symbol: 'TEST',
+        timestamp: new Date('2023-04-03T12:00:00Z'),
+        volume: 1000,
+        high: 10.5,
+        low: 9.8,
+        close: 10.2,
+        open: 10.0,
+      }]);
+      expect(StockDataMapper.persistenceToStockData).toHaveBeenCalledWith(mockResponse.resources[0]);
+    });
+
+    it('should log an error if querying by symbol and period fails', async () => {
+        // Arrange
+        const error = new Error('Query Period Error');
+        containerMock.items.query = jest.fn().mockImplementationOnce(() => {
+          throw error;
+        });
+  
+        // Act
+        await stockDataRepository.findBySymbolForPeriod('TEST', new Date(), new Date());
+  
+        // Assess
+        expect(consoleErrorSpy).toHaveBeenCalledWith("Error querying items:", error.message);
+      });
+  });
 });
 
