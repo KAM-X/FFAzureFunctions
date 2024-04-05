@@ -152,5 +152,29 @@ describe('StockDataService Error Handling', () => {
       await expect(service.fetchStockData('AMZN')).resolves.toBeNull();
     });
   });
+  
+describe('fetchDataAndStore', () => {
+    it('should fetch and store data for multiple symbols', async () => {
+      // Arrange
+      jest.spyOn(service, 'fetchStockData').mockImplementation(async (symbol) => ({
+        id: 'anyId',
+        symbol,
+        timestamp: new Date(),
+        volume: 100,
+        high: 10,
+        low: 5,
+        close: 8,
+        open: 6,
+      }));
+
+      // Act
+      const results = await service.fetchDataAndStore();
+
+      // Assert
+      expect(results).toHaveLength(2);
+      expect(service.fetchStockData).toHaveBeenCalledWith('AMZN');
+      expect(service.fetchStockData).toHaveBeenCalledWith('AAPL');
+    });
+  });
 
 });
