@@ -29,36 +29,85 @@ beforeEach(() => {
 });
 
 describe("FFRetrievalFunction and StockDataService tests", () => {
-  it('fetches and saves stock data successfully', async () => {
-    // Arrange
-    const stockDataService = new StockDataService(mockRepository);
-    const timestamp = new Date();
-    const fakeStockData: StockData = {
-      id: `AAPL-${timestamp.toISOString()}`,
-      symbol: 'AAPL',
-      timestamp: timestamp,
-      volume: 100,
-      high: 10,
-      low: 5,
-      close: 8,
-      open: 6,
-    };
-    const fakeStockDataFromAPI: StockDataAPI_DTO = {
-      t: timestamp.getTime() / 1000, // current timestamp in seconds
-      v: 100,
-      h: 10,
-      l: 5,
-      c: 8,
-      o: 6,
-    };
-    const fakeResponse = { data: { data: [fakeStockDataFromAPI] } };
-    mockAxios.get.mockResolvedValue(fakeResponse);
-
-    // Act
-    await stockDataService.fetchStockData('AAPL');
-
-    // Assert
-    expect(mockRepository.save).toHaveBeenCalledWith(fakeStockData);
+  it('returns error if stock data fetching fails', async () => {
+     // Arrange
+     mockRepository.findBySymbolForPeriod.mockImplementation((_x: any, _y: any, _z: any) => { throw new Error('Some error message'); });
+     const fakeUserParams: HttpRequestParams = { symbolName: 'AAPL' };
+     const fakeUserQuery = new URLSearchParams([['startDatetime', '2023-01-01'], ['endDatetime', '2023-01-02']]);
+     const fakeUserRequest = { method: 'GET', params: fakeUserParams, query: fakeUserQuery } as HttpRequest;
+     const fakeContext = {} as any;
+     const expectedResponse = {
+       status: 500,
+       body: 'Error retrieving stock data: Some error message'
+     };
+     
+     // Act
+     const result = await FFRetrievalFunction(fakeUserRequest, fakeContext);
+ 
+     // Assert
+     expect(result).toEqual(expectedResponse);
+     expect(mockRepository.findBySymbolForPeriod).toHaveBeenCalledWith('AAPL', expect.any(Date), expect.any(Date));
   });
 
+  it('returns stock data for a given period', async () => {
+    // Arrange
+    const fakeStockDataArray: StockData[] = [
+      {
+        id: 'AAPL-2023-01-01',
+        symbol: 'AAPL',
+        timestamp: new Date('2023-01-01'),
+        volume: 100,
+        high: 10,
+        low: 5,
+        close: 8,
+        open: 6,
+      },
+      {
+        id: 'AAPL-2023-01-02',
+        symbol: 'AAPL',
+        timestamp: new Date('2023-01-02'),
+        volume: 200,
+        high: 20,
+        low: 15,
+        close: 18,
+        open: 16,
+      },
+    ];
+    mockRepository.findBySymbolForPeriod.mockResolvedValue(fakeStockDataArray);
+    const fakeUserParams: HttpRequestParams = { symbolName: 'AAPL' };
+    const fakeUserQuery = new URLSearchParams([['startDatetime', '2023-01-01'], ['endDatetime', '2023-01-02']]);
+    const fakeUserRequest = { method: 'GET', params: fakeUserParams, query: fakeUserQuery } as HttpRequest;
+    const fakeContext = {} as any;
+    const expectedResponse = {
+      status: 200,
+      body: JSON.stringify(fakeStockDataArray)
+    };
+    
+    // Act
+    const result = await FFRetrievalFunction(fakeUserRequest, fakeContext);
+
+    // Assert
+    expect(result).toEqual(expectedResponse);
+    expect(mockRepository.findBySymbolForPeriod).toHaveBeenCalledWith('AAPL', expect.any(Date), expect.any(Date));
+  });
+
+  it('returns empty data array when stock data not found', async () => {
+    // Arrange
+    mockRepository.findBySymbolForPeriod.mockResolvedValue([]);
+    const fakeUserParams: HttpRequestParams = { symbolName: 'AAPL' };
+    const fakeUserQuery = new URLSearchParams([['startDatetime', '2023-01-01'], ['endDatetime', '2023-01-02']]);
+    const fakeUserRequest = { method: 'GET', params: fakeUserParams, query: fakeUserQuery } as HttpRequest;
+    const fakeContext = {} as any;
+    const expectedResponse = {
+      status: 200,
+      body: JSON.stringify([])
+    };
+    
+    // Act
+    const result = await FFRetrievalFunction(fakeUserRequest, fakeContext);
+
+    // Assert
+    expect(result).toEqual(expectedResponse);
+    expect(mockRepository.findBySymbolForPeriod).toHaveBeenCalledWith('AAPL', expect.any(Date), expect.any(Date));
+  });
 });
