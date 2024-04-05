@@ -100,12 +100,15 @@ export class StockDataService {
               error.message
             );
         }
+
+        
       } else {
         console.error(
           'Error fetching stock data. The error might not be related to a network or HTTP issue.',
           error
         );
       }
+      return null;
     }
   }
 
