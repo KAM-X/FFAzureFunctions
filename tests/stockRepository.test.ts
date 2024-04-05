@@ -88,5 +88,57 @@ describe('StockDataRepository', () => {
         expect(consoleErrorSpy).toHaveBeenCalledWith("Error saving stock data:", error);
       });
   });
+
+  describe('getRealTimeData', () => {
+    it('should retrieve real-time data for a given symbol', async () => {
+      const symbol = 'TEST';
+      const mockResponse = {
+        resources: [{
+          id: 'mock-id',
+          symbol: 'TEST',
+          timestamp: '2023-04-03T12:00:00.000Z',
+          volume: 1000,
+          high: 10.5,
+          low: 9.8,
+          close: 10.2,
+          open: 10.0,
+        }],
+      };
+
+      containerMock.items.query = jest.fn().mockReturnValue({
+        fetchAll: jest.fn().mockResolvedValue(mockResponse),
+      });
+      
+
+      const result = await stockDataRepository.getRealTimeData(symbol);
+
+      expect(containerMock.items.query).toHaveBeenCalled();
+      expect(result).toEqual({
+        id: 'mock-id',
+        symbol: 'TEST',
+        timestamp: new Date('2023-04-03T12:00:00Z'),
+        volume: 1000,
+        high: 10.5,
+        low: 9.8,
+        close: 10.2,
+        open: 10.0,
+      });
+      expect(StockDataMapper.persistenceToStockData).toHaveBeenCalledWith(mockResponse.resources[0]);
+    });
+
+    it('should log an error if querying real-time data fails', async () => {
+        // Arrange
+        const error = new Error('Query Error');
+        containerMock.items.query = jest.fn().mockImplementationOnce(() => {
+          throw error;
+        });
+  
+        // Act
+        await stockDataRepository.getRealTimeData('TEST');
+  
+        // Assess
+        expect(consoleErrorSpy).toHaveBeenCalledWith("Error querying items:", error.message);
+      });
+  });
 });
 
