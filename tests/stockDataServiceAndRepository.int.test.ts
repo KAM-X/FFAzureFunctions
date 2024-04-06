@@ -104,7 +104,7 @@ describe('Integration between StockDataService and StockDataRepository', () => {
         const endDate = new Date('2024-01-02');
 
         // Act
-        const retrievedData = await repository.findBySymbolForPeriod('AAPL', startDate, endDate);
+        const retrievedData = await service.getStockData('AAPL', startDate.toDateString(), endDate.toDateString());
 
         // Assert
         expect(container.items.query).toHaveBeenCalled();
