@@ -16,6 +16,7 @@ describe('StockDataService Integration', () => {
         service = new StockDataService(repositoryMock);
         jest.clearAllMocks();
     });
+
     it('correctly integrates fetchStockData with StockDataMapper and saves using repository, validating symbol and timestamp', async () => {
         // Arrange: Set up mocked data and response
         const mockData = { t: Date.now() / 1000 - 60, o: 100, h: 105, l: 95, c: 102, v: 1200 };
@@ -44,5 +45,41 @@ describe('StockDataService Integration', () => {
         expect(savedStockData.low).toEqual(95);
         expect(savedStockData.close).toEqual(102);
         expect(savedStockData.volume).toEqual(1200);
+    });
+
+    it('does not save stock data that is older than 2 minutes', async () => {
+        // Arrange
+        // Simulate current New York time
+        const currentNewYorkTime = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+        const currentDate = new Date(currentNewYorkTime);
+
+        // Simulate stock data timestamp to be 3 minutes before the current New York time
+        const oldStockDataTimestamp = new Date(currentDate.getTime() - (3 * 60 * 1000)); // 180,000 milliseconds = 3 minutes
+
+        // Mocked data to simulate response from the API
+        const mockData = {
+            data: {
+                data: [{
+                    t: oldStockDataTimestamp.getTime() / 1000, // Convert to seconds since epoch
+                    v: 100,
+                    h: 105,
+                    l: 95,
+                    c: 102,
+                    o: 100,
+                }]
+            }
+        };
+
+        mockedAxios.get.mockResolvedValue(mockData);
+
+        // Act
+        // Attempt to fetch and save the stock data
+        const result = await service.fetchStockData('AMZN');
+
+        // Assert
+        // Ensure that the stock data is recognized as too old and thus not saved
+        expect(result).toBeNull();
+        const saveMock = repositoryMock.save as jest.MockedFunction<typeof repositoryMock.save>;
+        expect(saveMock).not.toHaveBeenCalled();
     });
 });
