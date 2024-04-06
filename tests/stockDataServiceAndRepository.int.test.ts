@@ -13,6 +13,9 @@ jest.mock('../src/cosmosClientInstance', () => {
         container: {
             items: {
                 upsert: jest.fn(),
+                query: jest.fn().mockImplementation((data) => ({
+                    fetchAll: jest.fn(),
+                })),
             },
         },
     };
@@ -64,6 +67,48 @@ describe('Integration between StockDataService and StockDataRepository', () => {
         expect(StockDataMapper.toStockData).toHaveBeenCalledTimes(1);
         expect(container.items.upsert).toHaveBeenCalled();
         expect(result.symbol).toEqual(symbol);
+    });
+
+    it('Inserts stock data into database and retrieves it', async () => {
+
+        // Arrange
+        const mockStockData: StockData = {
+            id: '1',
+            symbol: 'AAPL',
+            timestamp: new Date('2024-01-01T00:00:00Z'),
+            volume: 1500,
+            high: 135,
+            low: 130,
+            close: 132,
+            open: 131,
+        };
+
+        (StockDataMapper.stockDataToPersistence as jest.Mock).mockReturnValue({
+            id: mockStockData.id,
+            symbol: mockStockData.symbol,
+            timestamp: mockStockData.timestamp.toISOString(),
+            volume: mockStockData.volume,
+            high: mockStockData.high,
+            low: mockStockData.low,
+            close: mockStockData.close,
+            open: mockStockData.open,
+        });
+
+        (container.items.query as jest.Mock).mockImplementation(() => ({
+            fetchAll: jest.fn().mockResolvedValue({ resources: [mockStockData] }),
+        }));
+
+        (StockDataMapper.persistenceToStockData as jest.Mock).mockImplementation((data) => data);
+
+        const startDate = new Date('2023-12-31');
+        const endDate = new Date('2024-01-02');
+
+        // Act
+        const retrievedData = await repository.findBySymbolForPeriod('AAPL', startDate, endDate);
+
+        // Assert
+        expect(container.items.query).toHaveBeenCalled();
+        expect(retrievedData).toEqual(expect.arrayContaining([mockStockData]));
     });
 
 });
