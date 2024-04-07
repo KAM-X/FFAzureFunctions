@@ -8,9 +8,9 @@ export class StockDataMapper {
     const stockDataID = id || (symbol + "-" + timestamp.toISOString());
 
     return {
+      timestamp: timestamp,
       id: stockDataID,
       symbol: symbol,
-      timestamp: timestamp,
       volume: apiResponse.v,
       high: apiResponse.h,
       low: apiResponse.l,
@@ -21,9 +21,9 @@ export class StockDataMapper {
 
   public static persistenceToStockData(persistenceData: StockDataPersistence): StockData {
     return {
+      timestamp: new Date(persistenceData.timestamp),
       id: persistenceData.id,
       symbol: persistenceData.symbol,
-      timestamp: new Date(persistenceData.timestamp),
       volume: persistenceData.volume,
       high: persistenceData.high,
       low: persistenceData.low,
@@ -34,9 +34,9 @@ export class StockDataMapper {
 
   public static stockDataToPersistence(stockData: StockData): StockDataPersistence {
     return {
+      timestamp: stockData.timestamp.toISOString(),
       id: stockData.id,
       symbol: stockData.symbol,
-      timestamp: stockData.timestamp.toISOString(),
       volume: stockData.volume,
       high: stockData.high,
       low: stockData.low,
