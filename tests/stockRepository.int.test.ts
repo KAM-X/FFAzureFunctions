@@ -25,10 +25,15 @@ describe('StockDataRepository Integration Tests', () => {
     describe('save', () => {
       it('should save stock data to the database', async () => {
         const stockData: StockData = {
-          id: '1',
-          symbol: 'AAPL',
+          id: 'some-id',
+          symbol: 'some-symbol',
           timestamp: new Date(),
-        };
+          volume: 123456,
+          high: 123.45,
+          low: 123.45,
+          close: 123.45,
+          open: 123.45
+      };
         //...
       });
     });
