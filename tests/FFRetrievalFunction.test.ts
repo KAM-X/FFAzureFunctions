@@ -33,12 +33,6 @@ beforeEach(() => {
   mockReset(mockStockDataService);
 });
 
-beforeEach(() => {
-  // Reset mocks before each test to ensure clean state
-  mockReset(mockStockDataRepository);
-  mockReset(mockStockDataService);
-});
-
 describe("FFRetrievalFunction tests", () => {
   it("returns 400 if required parameters are missing", async () => {
     // Arrange
