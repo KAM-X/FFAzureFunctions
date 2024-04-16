@@ -1,9 +1,10 @@
 import { app, HttpRequest, HttpResponseInit } from "@azure/functions";
 import { StockDataRepository } from "../src/repositories/stockRepository";
 import { StockDataService } from "../src/services/stockDataService";
-import {  mockDeep, mockReset   } from 'jest-mock-extended';
+import {  mockDeep, mockReset, mock   } from 'jest-mock-extended';
 import { FFRetrievalFunction } from "../src/functions/FFRetrievalFunction";
 import { container } from "../src/cosmosClientInstance";
+import { CacheService } from "../src/services/cache";
 
 // External dependency mocks
 const mockStockDataRepository = mockDeep<StockDataRepository>();
@@ -12,6 +13,14 @@ const mockStockDataService = mockDeep<StockDataService>();
 // Mock the container import (used in repository)
 jest.mock("../src/cosmosClientInstance", () => ({
   container: jest.fn()
+}));
+
+jest.mock("../src/stockDataResponseCacheInstance", () => ({
+  cacheInstance: {
+    get: jest.fn(),
+    set: jest.fn(),
+    clear: jest.fn()
+  }
 }));
 
 // Mock the entire modules for repository and service to replace the actual implementations with mocks
