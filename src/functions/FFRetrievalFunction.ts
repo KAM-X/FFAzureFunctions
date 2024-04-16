@@ -2,6 +2,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { StockDataService } from "../services/stockDataService";
 import { StockDataRepository } from "../repositories/stockRepository";
 import { container } from "../cosmosClientInstance";
+import { cacheInstance as cache} from "../stockDataResponseCacheInstance";
 
 export async function FFRetrievalFunction(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     const stockRepository = new StockDataRepository(container);
@@ -17,9 +18,18 @@ export async function FFRetrievalFunction(request: HttpRequest, context: Invocat
             return { status: 400, body: "Missing required parameters" };
         }
 
+        const cacheKey = `${symbolName}-${startDatetime}-${endDatetime}`;
+
+        const cachedResponse = await cache.get(cacheKey);
+        if (cachedResponse) {
+            return { status: 200, body: cachedResponse, headers: { 'X-Cache': 'hit' } };
+        }
+
         try {
             const stockData = await stockDataService.getStockData(symbolName, startDatetime, endDatetime);
             const responseBody = JSON.stringify(stockData);
+
+            await cache.set(cacheKey, responseBody);
 
             return { status: 200, body: responseBody };
         } catch (error) {
