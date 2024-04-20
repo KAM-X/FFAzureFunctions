@@ -93,7 +93,7 @@ describe("FFRetrievalFunction and StockDataService tests", () => {
     // Arrange
     mockRepository.findBySymbolForPeriod.mockResolvedValue([]);
     const fakeUserParams: HttpRequestParams = { symbolName: 'AAPL' };
-    const fakeUserQuery = new URLSearchParams([['startDatetime', '2023-01-01'], ['endDatetime', '2023-01-02']]);
+    const fakeUserQuery = new URLSearchParams([['startDatetime', '2023-01-02'], ['endDatetime', '2023-01-04']]);
     const fakeUserRequest = { method: 'GET', params: fakeUserParams, query: fakeUserQuery } as HttpRequest;
     const fakeContext = {} as any;
     const expectedResponse = {
@@ -106,6 +106,56 @@ describe("FFRetrievalFunction and StockDataService tests", () => {
 
     // Assert
     expect(result).toEqual(expectedResponse);
+    expect(mockRepository.findBySymbolForPeriod).toHaveBeenCalledWith('AAPL', expect.any(Date), expect.any(Date));
+  });
+
+  it('returns data from cache if available', async () => {
+    // Arrange
+    const fakeStockDataArray: StockData[] = [
+      {
+        id: 'AAPL-2023-01-04',
+        symbol: 'AAPL',
+        timestamp: new Date('2023-01-04'),
+        volume: 100,
+        high: 10,
+        low: 5,
+        close: 8,
+        open: 6,
+      },
+      {
+        id: 'AAPL-2023-01-05',
+        symbol: 'AAPL',
+        timestamp: new Date('2023-01-05'),
+        volume: 200,
+        high: 20,
+        low: 15,
+        close: 18,
+        open: 16,
+      },
+    ];
+    mockRepository.findBySymbolForPeriod.mockResolvedValue(fakeStockDataArray);
+    mockAxios.get.mockResolvedValue({ data: fakeStockDataArray });
+    const fakeUserParams: HttpRequestParams = { symbolName: 'AAPL' };
+    const fakeUserQuery = new URLSearchParams([['startDatetime', '2023-01-04'], ['endDatetime', '2023-01-05']]);
+    const fakeUserRequest = { method: 'GET', params: fakeUserParams, query: fakeUserQuery } as HttpRequest;
+    const fakeContext = {} as any;
+    const expectedResponse = {
+      status: 200,
+      body: JSON.stringify(fakeStockDataArray)
+    };
+    const expectedResponse2 = {
+      status: 200,
+      body: JSON.stringify(fakeStockDataArray),
+      headers: { 'X-Cache': 'hit' }
+    };
+
+    // Act
+    const result = await FFRetrievalFunction(fakeUserRequest, fakeContext);
+    const result2 = await FFRetrievalFunction(fakeUserRequest, fakeContext);
+
+    // Assert
+    expect(result).toEqual(expectedResponse);
+    expect(result2).toEqual(expectedResponse2);
     expect(mockRepository.findBySymbolForPeriod).toHaveBeenCalledWith('AAPL', expect.any(Date), expect.any(Date));
   });
 });
